@@ -381,136 +381,140 @@ export default function App() {
   return (
     <>
       <div className="app-shell">
-        <header className="app-header">
-          <div className="app-header__brand">
-            <span aria-hidden>🌐</span>
-            <span>Voice Translator</span>
-          </div>
-          <div className="app-header__actions">
-            <button type="button" className="icon-btn" onClick={toggleTheme} aria-label={themeLabel}>
-              {themeIcon}
-            </button>
-            <button type="button" className="icon-btn" onClick={clearHistory} aria-label="清空对话记录">
-              🗑️
-            </button>
-          </div>
-        </header>
+        <aside className="app-shell__aside">
+          <header className="app-header">
+            <div className="app-header__brand">
+              <span aria-hidden>🌐</span>
+              <span>Voice Translator</span>
+            </div>
+            <div className="app-header__actions">
+              <button type="button" className="icon-btn" onClick={toggleTheme} aria-label={themeLabel}>
+                {themeIcon}
+              </button>
+              <button type="button" className="icon-btn" onClick={clearHistory} aria-label="清空对话记录">
+                🗑️
+              </button>
+            </div>
+          </header>
 
-        <div className="lang-bar">
-          <div className="lang-pill">
-            <label className="sr-only" htmlFor="langMine">
-              我的语言
-            </label>
-            <select
-              id="langMine"
-              className="lang-select"
-              value={langMine}
-              onChange={(e) => persistMine(e.target.value)}
-              aria-label="我的语言"
-            >
-              {LANGS.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button type="button" className="swap-btn" onClick={swapLanguages} aria-label="交换两种语言" title="交换语言">
-            ⇄
-          </button>
-          <div className="lang-pill">
-            <label className="sr-only" htmlFor="langTheirs">
-              对方的语言
-            </label>
-            <select
-              id="langTheirs"
-              className="lang-select"
-              value={langTheirs}
-              onChange={(e) => persistTheirs(e.target.value)}
-              aria-label="对方的语言"
-            >
-              {LANGS.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="speaker-seg" role="group" aria-label="当前说话人">
-          <button type="button" aria-pressed={speaker === 'me'} onClick={() => setSpeaker('me')}>
-            我说
-          </button>
-          <button type="button" aria-pressed={speaker === 'them'} onClick={() => setSpeaker('them')}>
-            对方说
-          </button>
-        </div>
-
-        <div className={`api-banner ${hasApiKey() ? 'is-hidden' : ''}`} role="status">
-          请在项目根目录复制 <code>.env.example</code> 为 <code>.env</code> 并填写 <code>VITE_ZHIPU_API_KEY</code>
-          ，或在控制台执行：
-          <code> localStorage.setItem(&apos;zhipu_api_key&apos;,&apos;你的key&apos;)</code> 后刷新。
-        </div>
-
-        <main ref={chatRef} className="chat-scroll" aria-live="polite">
-          {messages.length === 0 ? (
-            <p className="chat-empty">暂无对话，选好语言后点击麦克风开始</p>
-          ) : (
-            messages.map((msg) => (
-              <ChatBubble
-                key={msg.id}
-                msg={msg}
-                editing={editingId === msg.id}
-                retranslating={retranslatingId === msg.id}
-                onStartEdit={() => setEditingId(msg.id)}
-                onRetranslate={(draft) => handleRetranslate(msg.id, draft)}
-                onSpeak={() => speak(msg.translated, msg.targetLang)}
-                onCopy={() => copyText(msg.translated)}
-                onFullscreen={() => {
-                  setFsText(msg.translated);
-                  setFsOpen(true);
-                }}
-                onTranslatedClick={() => {
-                  setFsText(msg.translated);
-                  setFsOpen(true);
-                }}
-              />
-            ))
-          )}
-        </main>
-
-        <p className="footer-note">
-          语音识别可能由浏览器/系统服务商处理；对话记录仅保存在本机浏览器。使用需 HTTPS 或 localhost。
-        </p>
-
-        <div className="dock">
-          <div className={`dock__firefox ${speechOk ? '' : 'is-visible'}`}>
-            <form onSubmit={onFirefoxSubmit}>
-              <label className="sr-only" htmlFor="firefoxText">
-                输入要说的内容
+          <div className="lang-bar">
+            <div className="lang-pill">
+              <label className="sr-only" htmlFor="langMine">
+                我的语言
               </label>
-              <textarea
-                id="firefoxText"
-                value={firefoxText}
-                onChange={(e) => setFirefoxText(e.target.value)}
-                placeholder="当前浏览器不支持语音，请在此输入原文后提交翻译"
-                enterKeyHint="send"
-              />
-              <button type="submit">翻译</button>
-            </form>
-          </div>
-          <p className="dock__hint">{dockHint}</p>
-          <div className={`mic-wrap ${speechOk ? '' : 'is-hidden'}`}>
-            <button
-              type="button"
-              className={`mic-btn ${micUi === 'listening' ? 'mic-btn--recording' : ''} ${micUi === 'busy' ? 'mic-btn--busy' : ''}`}
-              onClick={onMicClick}
-              disabled={micUi === 'busy'}
-              aria-label={micAria}
-            >
-              {micContent}
+              <select
+                id="langMine"
+                className="lang-select"
+                value={langMine}
+                onChange={(e) => persistMine(e.target.value)}
+                aria-label="我的语言"
+              >
+                {LANGS.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="button" className="swap-btn" onClick={swapLanguages} aria-label="交换两种语言" title="交换语言">
+              ⇄
             </button>
+            <div className="lang-pill">
+              <label className="sr-only" htmlFor="langTheirs">
+                对方的语言
+              </label>
+              <select
+                id="langTheirs"
+                className="lang-select"
+                value={langTheirs}
+                onChange={(e) => persistTheirs(e.target.value)}
+                aria-label="对方的语言"
+              >
+                {LANGS.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="speaker-seg" role="group" aria-label="当前说话人">
+            <button type="button" aria-pressed={speaker === 'me'} onClick={() => setSpeaker('me')}>
+              我说
+            </button>
+            <button type="button" aria-pressed={speaker === 'them'} onClick={() => setSpeaker('them')}>
+              对方说
+            </button>
+          </div>
+
+          <div className={`api-banner ${hasApiKey() ? 'is-hidden' : ''}`} role="status">
+            请在项目根目录复制 <code>.env.example</code> 为 <code>.env</code> 并填写 <code>VITE_ZHIPU_API_KEY</code>
+            ，或在控制台执行：
+            <code> localStorage.setItem(&apos;zhipu_api_key&apos;,&apos;你的key&apos;)</code> 后刷新。
+          </div>
+        </aside>
+
+        <div className="app-shell__main">
+          <main ref={chatRef} className="chat-scroll" aria-live="polite">
+            {messages.length === 0 ? (
+              <p className="chat-empty">暂无对话，选好语言后点击麦克风开始</p>
+            ) : (
+              messages.map((msg) => (
+                <ChatBubble
+                  key={msg.id}
+                  msg={msg}
+                  editing={editingId === msg.id}
+                  retranslating={retranslatingId === msg.id}
+                  onStartEdit={() => setEditingId(msg.id)}
+                  onRetranslate={(draft) => handleRetranslate(msg.id, draft)}
+                  onSpeak={() => speak(msg.translated, msg.targetLang)}
+                  onCopy={() => copyText(msg.translated)}
+                  onFullscreen={() => {
+                    setFsText(msg.translated);
+                    setFsOpen(true);
+                  }}
+                  onTranslatedClick={() => {
+                    setFsText(msg.translated);
+                    setFsOpen(true);
+                  }}
+                />
+              ))
+            )}
+          </main>
+
+          <p className="footer-note">
+            语音识别可能由浏览器/系统服务商处理；对话记录仅保存在本机浏览器。使用需 HTTPS 或 localhost。
+          </p>
+
+          <div className="dock">
+            <div className={`dock__firefox ${speechOk ? '' : 'is-visible'}`}>
+              <form onSubmit={onFirefoxSubmit}>
+                <label className="sr-only" htmlFor="firefoxText">
+                  输入要说的内容
+                </label>
+                <textarea
+                  id="firefoxText"
+                  value={firefoxText}
+                  onChange={(e) => setFirefoxText(e.target.value)}
+                  placeholder="当前浏览器不支持语音，请在此输入原文后提交翻译"
+                  enterKeyHint="send"
+                />
+                <button type="submit">翻译</button>
+              </form>
+            </div>
+            <p className="dock__hint">{dockHint}</p>
+            <div className={`mic-wrap ${speechOk ? '' : 'is-hidden'}`}>
+              <button
+                type="button"
+                className={`mic-btn ${micUi === 'listening' ? 'mic-btn--recording' : ''} ${micUi === 'busy' ? 'mic-btn--busy' : ''}`}
+                onClick={onMicClick}
+                disabled={micUi === 'busy'}
+                aria-label={micAria}
+              >
+                {micContent}
+              </button>
+            </div>
           </div>
         </div>
       </div>

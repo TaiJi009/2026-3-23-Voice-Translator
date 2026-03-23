@@ -14,6 +14,10 @@
   --mic-shadow: 0 8px 24px rgba(79, 70, 229, 0.35);
   --font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei',
     sans-serif;
+  /* 响应式：主栏最大宽度与气泡可读宽度 */
+  --shell-max: 480px;
+  --bubble-readable-max: 100%;
+  --chat-pad-bottom: 120px;
 }
 
 [data-theme='dark'] {
@@ -50,14 +54,30 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
 }
 
 .app-shell {
-  max-width: 480px;
+  width: 100%;
+  max-width: var(--shell-max);
   margin: 0 auto;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.app-shell__aside {
+  flex-shrink: 0;
+}
+
+.app-shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
   position: relative;
 }
 
@@ -69,6 +89,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 12px 16px;
   padding-top: calc(12px + env(safe-area-inset-top, 0));
   background: var(--header-bg);
@@ -141,7 +162,7 @@ body {
   font-size: 0.875rem;
   font-family: inherit;
   cursor: pointer;
-  max-width: 120px;
+  max-width: min(120px, 38vw);
 }
 
 .swap-btn {
@@ -194,7 +215,7 @@ body {
 .chat-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 16px 120px;
+  padding: 8px 16px var(--chat-pad-bottom);
   -webkit-overflow-scrolling: touch;
 }
 
@@ -219,7 +240,7 @@ body {
 }
 
 .bubble {
-  max-width: 88%;
+  max-width: min(88%, var(--bubble-readable-max));
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid var(--color-border);
@@ -358,8 +379,8 @@ body {
   transform: translateX(-50%);
   bottom: calc(16px + env(safe-area-inset-bottom, 0));
   width: 100%;
-  max-width: 480px;
-  padding: 0 24px;
+  max-width: var(--shell-max);
+  padding: 0 clamp(16px, 4vw, 24px);
   z-index: 30;
   display: flex;
   flex-direction: column;
@@ -580,4 +601,182 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* —— 平板：约 iPad 竖屏 / 小屏平板，单栏加宽 —— */
+@media (min-width: 600px) and (max-width: 1023.98px) {
+  :root {
+    --shell-max: min(100%, 720px);
+    --bubble-readable-max: 32rem;
+  }
+
+  html {
+    font-size: 17px;
+  }
+
+  .lang-select {
+    max-width: 140px;
+  }
+
+  .speaker-seg button {
+    padding: 12px 10px;
+    font-size: 0.875rem;
+  }
+}
+
+/* —— 手机横屏 / 窄屏：避免语言栏挤压 —— */
+@media (max-width: 380px) {
+  .lang-bar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .lang-pill {
+    padding: 6px 10px;
+  }
+}
+
+/* —— 桌面 PC：侧栏 + 对话区，卡片式外壳 —— */
+@media (min-width: 1024px) {
+  :root {
+    --shell-max: min(1120px, calc(100vw - 48px));
+    --bubble-readable-max: 36rem;
+    --chat-pad-bottom: 28px;
+  }
+
+  html {
+    font-size: 17px;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .app-shell {
+    flex-direction: row;
+    align-items: stretch;
+    margin: 12px auto;
+    min-height: calc(100dvh - 24px);
+    max-height: calc(100dvh - 24px);
+    border-radius: 20px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  [data-theme='dark'] .app-shell {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .app-shell__aside {
+    width: min(300px, 32%);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-border);
+    background: var(--color-bg);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-header {
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0));
+  }
+
+  .app-header__brand {
+    justify-content: center;
+    font-size: 1.05rem;
+  }
+
+  .app-header__actions {
+    justify-content: center;
+  }
+
+  .lang-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .lang-pill {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .lang-select {
+    max-width: none;
+    flex: 1;
+    text-align: center;
+  }
+
+  .swap-btn {
+    align-self: center;
+  }
+
+  .speaker-seg {
+    margin: 0 16px 12px;
+    flex-direction: column;
+  }
+
+  .speaker-seg button {
+    padding: 12px 10px;
+  }
+
+  .api-banner {
+    margin: 0 16px 12px;
+    font-size: 0.8125rem;
+  }
+
+  .app-shell__main {
+    background: var(--color-surface);
+    min-height: 0;
+  }
+
+  .chat-scroll {
+    padding: 12px 20px var(--chat-pad-bottom);
+  }
+
+  .footer-note {
+    padding: 8px 20px 16px;
+  }
+
+  .dock {
+    position: sticky;
+    left: auto;
+    transform: none;
+    bottom: 0;
+    max-width: none;
+    width: 100%;
+    margin-top: auto;
+    padding: 12px 24px calc(16px + env(safe-area-inset-bottom, 0));
+    background: linear-gradient(to top, var(--color-surface) 70%, rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+
+  [data-theme='dark'] .dock {
+    background: linear-gradient(to top, var(--color-surface) 75%, rgba(31, 41, 55, 0));
+  }
+
+  .toast {
+    bottom: 32px;
+    max-width: min(90%, 480px);
+  }
+}
+
+/* —— 大屏桌面：再放宽对话区 —— */
+@media (min-width: 1280px) {
+  :root {
+    --shell-max: min(1200px, calc(100vw - 64px));
+    --bubble-readable-max: 38rem;
+  }
 }
