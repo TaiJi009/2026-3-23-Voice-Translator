@@ -1,7 +1,7 @@
 # Voice Translator — 语音翻译工具 PRD
 
-**版本**：v1.1
-**状态**：定稿（技术架构已修订）
+**版本**：v1.2
+**状态**：定稿（前端栈已升级为 React + Vite）
 **最后更新**：2026-03-23
 
 ---
@@ -131,11 +131,12 @@
 
 | 方案 | 优点 | 缺点 | 建议 |
 |------|------|------|------|
-| **原生 HTML/CSS/ES Module** | 无构建、易托管、首屏快 | 组件化弱于框架 | **当前实现**：保持，符合工具定位 |
-| Vite + 轻量框架（Preact/Vue） | 组件化、状态清晰 | 需 CI 构建与产物目录 | 功能复杂到多页面/插件化时再上 |
+| 原生 HTML/CSS/ES Module | 无构建、易托管、首屏快 | 组件化弱、状态一多难维护 | 已弃用为本项目默认方案 |
+| **React + Vite** | 组件化、生态成熟、HMR 开发体验好 | 需 `npm run build` 与发布 `dist` | **当前实现**：采用 |
+| Vite + Vue / Preact | 包体可更小 | 团队栈不一致时学习成本 | 若团队更熟 Vue 可替换 |
 | PWA | 可安装、离线壳 | 离线仍无法调用需联网的翻译 API | 可作为增强，非 MVP 必需 |
 
-**修订结论**：在功能规模不变时，**不升级为框架**；若后续增加路由、复杂设置页，再引入 **Vite + 单框架**。
+**修订结论**：在维持「单页工具」前提下，采用 **React 18 + Vite 6**；GitHub Pages 发布 **构建产物目录 `dist`**，而非源码根目录。
 
 #### 4.3.3 语音识别（ASR）
 
@@ -178,14 +179,14 @@
 
 - **架构默认值**：能力与产品不变时，**端上 ASR + 端上 TTS + 智谱翻译** 不变。
 - **网络默认值**：仓库若**公开**或需给他人使用，应规划 **模式 B**，把「直连智谱」视为过渡方案。
-- **密钥策略**：`config.js` / `localStorage` 仅作**私有调试**；正式对外部署以 **服务端/边缘密钥** 为准。
+- **密钥策略**：`.env` 中 `VITE_ZHIPU_API_KEY`（勿提交）/ `localStorage` 仅作**私有调试**；正式对外部署以 **服务端/边缘密钥** 为准。
 
-### 4.4 推荐技术栈总表（v1.1）
+### 4.4 推荐技术栈总表（v1.2）
 
 | 层级 | 选型 | 备注 |
 |------|------|------|
-| 托管 | **GitHub Pages** | 静态资源根目录发布 |
-| 前端 | **原生 HTML/CSS/JS（ES Module）** | 无构建；与当前代码一致 |
+| 托管 | **GitHub Pages** | 发布 **`dist/`**（Vite 构建输出），非源码根 |
+| 前端 | **React 18 + Vite 6** | `src/` 组件化；`base: './'` 便于子路径托管 |
 | ASR | **Web Speech API** | Firefox 走文本输入降级 |
 | 翻译 | **智谱 glm-4-flash** | 经 **BFF** 或直连（视部署而定） |
 | TTS | **SpeechSynthesis** | 语言代码与 UI 语言对齐 |
@@ -392,7 +393,7 @@
 
 | # | 问题 | 决策 |
 |---|------|------|
-| 1 | API Key 如何管理？ | **私有自用**：`config.js` / `localStorage`。**公开部署**：边缘 BFF（Worker 等）存密钥，前端不携带 Key（见 §4.3.6） |
+| 1 | API Key 如何管理？ | **私有自用**：`.env`（`VITE_ZHIPU_API_KEY`）/ `localStorage`。**公开部署**：边缘 BFF（Worker 等）存密钥，前端不携带 Key（见 §4.3.6） |
 | 2 | 用什么翻译服务？ | 智谱 GLM-4-Flash（免费） |
 | 3 | 需要后端吗？ | 不需要，纯前端 + 第三方 API |
 | 4 | 离线支持？ | 本期不做 |
@@ -403,15 +404,20 @@
 
 ```
 voice-translator/
-├── index.html          # 主页面
-├── css/
-│   └── style.css       # 样式
-├── js/
-│   ├── app.js          # 主逻辑
-│   ├── speech.js       # ASR & TTS 封装
-│   ├── translate.js    # 智谱 API 调用
-│   └── storage.js      # localStorage 管理
-├── assets/
-│   └── icons/          # 图标资源
-└── README.md           # 项目说明
+├── index.html              # Vite 入口 HTML
+├── vite.config.js
+├── package.json
+├── .env.example            # VITE_ZHIPU_API_KEY 示例（勿提交真实 .env）
+├── src/
+│   ├── main.jsx            # React 挂载
+│   ├── App.jsx             # 页面与语音/翻译状态
+│   ├── index.css           # 全局样式（设计系统变量）
+│   ├── components/
+│   │   └── ChatBubble.jsx
+│   └── lib/
+│       ├── speech.js       # ASR & TTS
+│       ├── translate.js    # 智谱 API
+│       └── storage.js      # localStorage
+├── public/                 # 可选：静态资源原样复制到 dist
+└── README.md
 ```

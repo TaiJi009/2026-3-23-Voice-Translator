@@ -1,0 +1,45 @@
+# GitHub Pages：发布 Vite 构建产物 dist/
+# 使用前：Settings → Pages → Build and deployment → Source 选 "GitHub Actions"
+# 可选：在仓库 Secrets 添加 VITE_ZHIPU_API_KEY，构建时注入（勿在公开仓库依赖此方式长期存密钥）
+
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_ZHIPU_API_KEY: ${{ secrets.VITE_ZHIPU_API_KEY }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -9,11 +9,18 @@ const LANG_NAMES = {
 
 const API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 
+/** 内置默认 Key；可被 localStorage「zhipu_api_key」或 .env 的 VITE_ZHIPU_API_KEY 覆盖 */
+const BUILTIN_ZHIPU_API_KEY = 'fafadd6a79f04fa6929d0866016d5a29.8MBngArmXxck7CAH';
+
 function getApiKey() {
   const fromLs = localStorage.getItem('zhipu_api_key');
   if (fromLs) return fromLs.trim();
-  const cfg = window.__VT_CONFIG__?.ZHIPU_API_KEY;
-  return (cfg && String(cfg).trim()) || '';
+  const env = import.meta.env.VITE_ZHIPU_API_KEY;
+  if (env && String(env).trim()) return String(env).trim();
+  if (typeof window !== 'undefined' && window.__VT_CONFIG__?.ZHIPU_API_KEY) {
+    return String(window.__VT_CONFIG__.ZHIPU_API_KEY).trim();
+  }
+  return BUILTIN_ZHIPU_API_KEY;
 }
 
 export function hasApiKey() {
