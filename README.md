@@ -13,7 +13,7 @@ npm run dev
 
 ## 环境变量
 
-复制 `.env.example` 为 `.env`，填写：
+复制 `.env.example` 为 `.env`，填写：·
 
 ```env
 VITE_ZHIPU_API_KEY=你的智谱Key
