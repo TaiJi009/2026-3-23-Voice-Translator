@@ -1,4 +1,4 @@
-# Voice Translator
+# Voice Translator 
 
 React + Vite 单页应用：Web Speech API 识别 → 智谱 GLM-4-Flash 翻译 → 浏览器朗读。构建产物可部署到 GitHub Pages。
 
